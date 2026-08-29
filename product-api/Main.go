@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"go-microservices/database"
-	"go-microservices/product-api/repository"
+	repository "go-microservices/product-api/handlers"
 )
 
 func main() {
