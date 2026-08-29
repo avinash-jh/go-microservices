@@ -2,8 +2,8 @@ package repository
 
 import (
 	"fmt"
+	"go-microservices/models"
 	"log"
-	"product-api/models"
 
 	"gorm.io/gorm"
 )

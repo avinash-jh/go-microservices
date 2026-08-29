@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"product-api/database"
-	"product-api/product-api/repository"
+	"go-microservices/database"
+	"go-microservices/product-api/repository"
 )
 
 func main() {
@@ -14,5 +14,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	repository.AddProduct(db)
+	repository.DeleteProduct(db)
 }

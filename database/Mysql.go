@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"product-api/models"
+	"go-microservices/models"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -41,6 +41,12 @@ func ConnectAndMigrate() (*gorm.DB, error) {
 		return nil, fmt.Errorf("auto migration failed: %w", err)
 	}
 	fmt.Println("Product table created successfully")
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		return nil, fmt.Errorf("auto migration failed: %w", err)
+	}
+	fmt.Println("user table created successfully")
 
 	return db, nil
 }
