@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"product-api/database"
-	"product-api/repository"
+	"product-api/product-api/repository"
 )
 
 func main() {
