@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"go-microservices/models"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -24,10 +23,10 @@ func ConnectAndMigrate() (*gorm.DB, error) {
 	}
 
 	// Configure connection pool settings
-	sqlDB.SetMaxOpenConns(10)                  // Maximum open connections
-	sqlDB.SetMaxIdleConns(5)                   // Keep 5 idle connections warm
-	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Close connection after 30 mins
-	sqlDB.SetConnMaxIdleTime(10 * time.Minute) // Close connection if idle for 10 mins
+	sqlDB.SetMaxOpenConns(10)
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
 
 	// Verify connection
 	if err := sqlDB.Ping(); err != nil {
@@ -35,18 +34,9 @@ func ConnectAndMigrate() (*gorm.DB, error) {
 	}
 	fmt.Println("Database connection established")
 
-	// AutoMigrate creates the table if it does not exist
-	err = db.AutoMigrate(&models.Product{})
-	if err != nil {
-		return nil, fmt.Errorf("auto migration failed: %w", err)
+	if err = CreateTable(db); err != nil {
+		return nil, err
 	}
-	fmt.Println("Product table created successfully")
-
-	err = db.AutoMigrate(&models.User{})
-	if err != nil {
-		return nil, fmt.Errorf("auto migration failed: %w", err)
-	}
-	fmt.Println("user table created successfully")
 
 	return db, nil
 }
