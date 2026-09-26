@@ -3,8 +3,7 @@ package acommon
 import (
 	"errors"
 
-	"go-microservices/database"
-
+	"github.com/avinash-jh/go-microservice-common/database"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

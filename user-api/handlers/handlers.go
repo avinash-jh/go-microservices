@@ -3,12 +3,12 @@ package repository
 import (
 	"encoding/json"
 	"errors"
+	acommon "go-microservices/a-common"
 	"log"
 	"strconv"
 
-	acommon "go-microservices/a-common"
-	"go-microservices/models"
-
+	"github.com/avinash-jh/go-microservice-common/models"
+	"github.com/avinash-jh/go-microservice-common/security"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -37,6 +37,16 @@ func (h *UserHandlers) AddUser(c *gin.Context) {
 		acommon.SetErrorResponse(c, 400, errors.New("invalid request body"))
 		return
 	}
+
+	hashedPassword, err := security.HashPassword(user.Password)
+
+	if err != nil {
+		log.Println("Failed to hash password:", err)
+		acommon.SetErrorResponse(c, 500, errors.New("failed to process password"))
+		return
+	}
+
+	user.Password = hashedPassword
 
 	if err := h.app.DbConnection.Create(&user).Error; err != nil {
 		log.Println("Failed to create user:", err)

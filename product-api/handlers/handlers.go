@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	acommon "go-microservices/a-common"
-	"go-microservices/models"
 
+	"github.com/avinash-jh/go-microservice-common/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
