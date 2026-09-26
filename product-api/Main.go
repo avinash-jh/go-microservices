@@ -3,13 +3,19 @@ package main
 import (
 	acommon "go-microservices/a-common"
 	"go-microservices/product-api/routes"
+	"log"
 )
 
 func main() {
-	App, err := acommon.CreateApp()
+
+	app, err := acommon.CreateApp()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	routes.SetupRoutes(App)
-	App.App.Run(":8080")
+
+	routes.SetupRoutes(app)
+
+	if err := app.GinApp.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }

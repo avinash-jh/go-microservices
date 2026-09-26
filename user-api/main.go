@@ -12,5 +12,5 @@ func main() {
 		panic(err)
 	}
 	routes.SetupRoutes(App)
-	App.App.Run(":8081")
+	App.GinApp.Run(":8081")
 }

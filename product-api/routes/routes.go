@@ -8,10 +8,13 @@ import (
 )
 
 func SetupRoutes(app *acommon.ApiHandlers) *gin.Engine {
-	h := repository.NewProductHandlers(app)
-	app.App.GET("/products/:id", h.GetProduct)
-	app.App.POST("/products", h.AddProduct)
-	app.App.PUT("/products/:id", h.UpdateProduct)
-	app.App.DELETE("/products/:id", h.DeleteProduct)
-	return app.App
+
+	productHandlers := repository.NewProductHandlers(app)
+
+	app.GinApp.GET("/products/:id", productHandlers.GetProduct)
+	app.GinApp.POST("/products", productHandlers.AddProduct)
+	app.GinApp.PUT("/products/:id", productHandlers.UpdateProduct)
+	app.GinApp.DELETE("/products/:id", productHandlers.DeleteProduct)
+
+	return app.GinApp
 }
