@@ -1,4 +1,4 @@
-package gomicroservices
+package main
 
 import (
 	acommon "go-microservices/a-common"
