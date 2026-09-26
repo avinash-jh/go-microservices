@@ -1,18 +1,16 @@
 package main
 
 import (
-	"log"
-
-	"go-microservices/database"
-	repository "go-microservices/user-api/handlers"
+	acommon "go-microservices/a-common"
+	"go-microservices/user-api/routes"
 )
 
 func main() {
 
-	db, err := database.ConnectAndMigrate()
-
+	App, err := acommon.CreateApp()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	repository.AddUser(db)
+	routes.SetupRoutes(App)
+	App.App.Run(":8081")
 }

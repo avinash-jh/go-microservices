@@ -2,42 +2,51 @@ package repository
 
 import (
 	"fmt"
+	acommon "go-microservices/a-common"
 	"go-microservices/models"
 	"log"
 
-	"gorm.io/gorm"
+	"github.com/gin-gonic/gin"
 )
 
-func AddUser(db *gorm.DB) {
+type UserHandlers struct {
+	app *acommon.ApiHandlers
+}
+
+func NewUserHandlers(app *acommon.ApiHandlers) *UserHandlers {
+	return &UserHandlers{app: app}
+}
+
+func (h *UserHandlers) AddUser(c *gin.Context) {
 	user := models.User{
 		UserName:    "Avinash kumar",
 		Email:       "avinashjha607@gmail.com",
 		PhoneNumber: "7739876270",
 	}
-	result := db.Create(&user)
+	result := h.app.DbConnection.Create(&user)
 	if result.Error != nil {
 		log.Fatal(result.Error)
 	}
 	fmt.Println("user created")
 }
 
-func GetUser(db *gorm.DB) {
+func (h *UserHandlers) GetUser(c *gin.Context) {
 	user := models.User{}
-	result := db.First(&user, 1)
+	result := h.app.DbConnection.First(&user, 1)
 	if result.Error != nil {
 		log.Fatal(result.Error)
 	}
 	fmt.Println("user is", user)
 }
 
-func UpdateUser(db *gorm.DB) {
+func (h *UserHandlers) UpdateUser(c *gin.Context) {
 	var user models.User
 
-	if err := db.First(&user, 1).Error; err != nil {
+	if err := h.app.DbConnection.First(&user, 1).Error; err != nil {
 		log.Fatal("user not found:", err)
 	}
 
-	result := db.Model(&user).Updates(models.User{
+	result := h.app.DbConnection.Model(&user).Updates(models.User{
 		Email:       "avinashsamrat607@gmail.com",
 		PhoneNumber: "7723456480",
 	})
@@ -49,8 +58,8 @@ func UpdateUser(db *gorm.DB) {
 	fmt.Println("user updated successfully")
 }
 
-func DeleteUser(db *gorm.DB) {
-	result := db.Delete(&models.User{}, 1)
+func (h *UserHandlers) DeleteUser(c *gin.Context) {
+	result := h.app.DbConnection.Delete(&models.User{}, 1)
 
 	if result.Error != nil {
 		log.Fatal(result.Error)
