@@ -5,7 +5,6 @@ import (
 	"errors"
 	acommon "go-microservices/a-common"
 	"log"
-	"strconv"
 
 	"github.com/avinash-jh/go-microservice-common/models"
 	"github.com/avinash-jh/go-microservice-common/security"
@@ -64,20 +63,22 @@ func (h *UserHandlers) AddUser(c *gin.Context) {
 
 func (h *UserHandlers) GetUser(c *gin.Context) {
 
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id := c.Param("id")
 
-	if err != nil {
-		acommon.SetErrorResponse(c, 400, errors.New("invalid user id"))
+	if id == "" {
+		acommon.SetErrorResponse(c, 400, errors.New("user id is blank"))
 		return
 	}
 
 	var user models.User
 
-	if err := h.app.DbConnection.First(&user, id).Error; err != nil {
+	if err := h.app.DbConnection.First(&user, "id = ?", id).Error; err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			acommon.SetErrorResponse(c, 404, errors.New("user not found"))
 			return
 		}
+
 		log.Println("Failed to get user:", err)
 		acommon.SetErrorResponse(c, 500, errors.New("failed to get user"))
 		return
@@ -92,63 +93,93 @@ func (h *UserHandlers) GetUser(c *gin.Context) {
 
 func (h *UserHandlers) UpdateUser(c *gin.Context) {
 
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id := c.Param("id")
 
-	if err != nil {
-		acommon.SetErrorResponse(c, 400, errors.New("invalid user id"))
+	if id == "" {
+		acommon.SetErrorResponse(c, 400, errors.New("user id is blank"))
 		return
 	}
 
 	requestData, err := h.app.GetRequestData(c)
-
 	if err != nil {
 		acommon.SetErrorResponse(c, 500, err)
 		return
 	}
 
-	var requestUser models.User
+	var updates map[string]interface{}
 
-	if err := json.Unmarshal(requestData.Body, &requestUser); err != nil {
+	if err := json.Unmarshal(requestData.Body, &updates); err != nil {
 		acommon.SetErrorResponse(c, 400, errors.New("invalid request body"))
+		return
+	}
+
+	if len(updates) == 0 {
+		acommon.SetErrorResponse(c, 400, errors.New("no fields to update"))
+		return
+	}
+
+	if _, exists := updates["id"]; exists {
+		acommon.SetErrorResponse(c, 400, errors.New("id cannot be updated"))
+		return
+	}
+
+	if _, exists := updates["password"]; exists {
+		acommon.SetErrorResponse(c, 400, errors.New("password cannot be updated"))
+		return
+	}
+
+	result := h.app.DbConnection.
+		Model(&models.User{}).
+		Where("id = ?", id).
+		Updates(updates)
+
+	if result.Error != nil {
+		log.Println("Failed to update user:", result.Error)
+
+		acommon.SetErrorResponse(
+			c,
+			500,
+			errors.New("failed to update user"),
+		)
 		return
 	}
 
 	var user models.User
 
-	if err := h.app.DbConnection.First(&user, id).Error; err != nil {
+	if err := h.app.DbConnection.
+		First(&user, "id = ?", id).Error; err != nil {
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			acommon.SetErrorResponse(c, 404, errors.New("user not found"))
+			acommon.SetErrorResponse(
+				c,
+				404,
+				errors.New("user not found"),
+			)
 			return
 		}
-		log.Println("Failed to find user:", err)
-		acommon.SetErrorResponse(c, 500, errors.New("failed to find user"))
+
+		log.Println("Failed to get updated user:", err)
+
+		acommon.SetErrorResponse(
+			c,
+			500,
+			errors.New("failed to get updated user"),
+		)
 		return
 	}
 
-	user.UserName = requestUser.UserName
-	user.Email = requestUser.Email
-	user.PhoneNumber = requestUser.PhoneNumber
-
-	if err := h.app.DbConnection.Save(&user).Error; err != nil {
-		log.Println("Failed to update user:", err)
-		acommon.SetErrorResponse(c, 500, errors.New("failed to update user"))
-		return
-	}
-
-	acommon.SetSuccessResponse(c, 200,
-		gin.H{
-			"message": "User updated successfully",
-			"data":    user,
-		},
-	)
+	acommon.SetSuccessResponse(c, 200, gin.H{
+		"message": "User updated successfully",
+		"data":    user,
+	})
 }
 
 func (h *UserHandlers) DeleteUser(c *gin.Context) {
 
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id := c.Param("id")
 
-	if err != nil {
-		acommon.SetErrorResponse(c, 400, errors.New("invalid user id"))
+	if id == "" {
+		acommon.SetErrorResponse(c, 400, errors.New("user id is blank"))
 		return
 	}
 
